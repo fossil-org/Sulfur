@@ -1,3 +1,4 @@
+import os
 from sys import argv
 
 from .core import FileTreeCLUI
@@ -6,8 +7,7 @@ def main() -> None:
     try:
         ft = FileTreeCLUI(argv[1])
     except IndexError:
-        print("Usage: shiv (WorkspaceRoot path).")
-        exit()
+        ft = FileTreeCLUI(os.path.abspath("."))
     try:
         ft.initRoot()
     except FileNotFoundError:
