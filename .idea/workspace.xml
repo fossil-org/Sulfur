@@ -5,18 +5,40 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cf88adde-d73d-488c-a80a-229ab5d8b79f" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/shiv/script_std.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/__Children__/LocalScript/__Children__/GreetLib/__Content__" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/__Children__/LocalScript/__Children__/GreetLib/__Type__" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/__Children__/LocalScript/__Children__/Name/__Content__" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/__Children__/LocalScript/__Children__/Name/__Type__" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/__Children__/LocalScript/__Content__" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/__Children__/LocalScript/__Type__" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/__Children__/GreetLib/__Children__/Greetings/__Children__/0/__Content__" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/__Children__/GreetLib/__Children__/Greetings/__Children__/0/__Type__" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/__Children__/GreetLib/__Children__/Greetings/__Children__/1/__Content__" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/__Children__/GreetLib/__Children__/Greetings/__Children__/1/__Type__" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/__Children__/GreetLib/__Children__/Greetings/__Children__/2/__Content__" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/__Children__/GreetLib/__Children__/Greetings/__Children__/2/__Type__" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/__Children__/GreetLib/__Children__/Greetings/__Children__/3/__Content__" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/__Children__/GreetLib/__Children__/Greetings/__Children__/3/__Type__" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/__Children__/GreetLib/__Children__/Greetings/__Content__" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/__Children__/GreetLib/__Children__/Greetings/__Type__" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/__Children__/GreetLib/__Content__" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/__Children__/GreetLib/__Type__" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/__Children__/Name/__Children__/FirstName/__Content__" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/__Children__/Name/__Children__/FirstName/__Type__" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/__Children__/Name/__Content__" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/__Children__/Name/__Type__" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/__Children__/Script/__Content__" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/__Children__/Script/__Type__" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/test/__Content__" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/test/__Type__" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dictionaries/project.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dictionaries/project.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shiv.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shiv.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.venv/lib/python3.12/site-packages/pip/_vendor/pygments/formatters/irc.py" beforeDir="false" afterPath="$PROJECT_DIR$/.venv/lib/python3.12/site-packages/pip/_vendor/pygments/formatters/irc.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.venv/lib/python3.12/site-packages/pip/_vendor/pygments/formatters/terminal.py" beforeDir="false" afterPath="$PROJECT_DIR$/.venv/lib/python3.12/site-packages/pip/_vendor/pygments/formatters/terminal.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.venv/lib/python3.12/site-packages/pip/_vendor/pygments/lexers/python.py" beforeDir="false" afterPath="$PROJECT_DIR$/.venv/lib/python3.12/site-packages/pip/_vendor/pygments/lexers/python.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.venv/lib/python3.12/site-packages/pip/_vendor/rich/syntax.py" beforeDir="false" afterPath="$PROJECT_DIR$/.venv/lib/python3.12/site-packages/pip/_vendor/rich/syntax.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shiv/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/shiv/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/shiv/core.py" beforeDir="false" afterPath="$PROJECT_DIR$/shiv/core.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/shiv/entrypoint.py" beforeDir="false" afterPath="$PROJECT_DIR$/shiv/entrypoint.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shiv/script_std.py" beforeDir="false" afterPath="$PROJECT_DIR$/shiv/script_std.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shiv/shivim.py" beforeDir="false" afterPath="$PROJECT_DIR$/shiv/shivim.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -56,6 +78,8 @@
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/shiv" />
+      <recent name="$PROJECT_DIR$/test/__Children__/Script/__Children__" />
+      <recent name="$PROJECT_DIR$/test/__Children__/Script" />
     </key>
   </component>
   <component name="SharedIndexes">

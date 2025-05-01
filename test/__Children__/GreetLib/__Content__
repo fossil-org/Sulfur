@@ -1,0 +1,10 @@
+from shiv import *
+
+this = GetVF(__file__)
+
+Greetings = this.GetChild("Greetings")
+
+from random import randint
+
+def Greet(name: str) -> None:
+    print(f"{Greetings.GetRandomValue()}, {name}!")
