@@ -1,3 +1,0 @@
-require(this.GetSibling("GreetLib"), globals())
-
-GreetLib.Greet(this.GetSibling("Name").GetChild("FirstName").GetContent())

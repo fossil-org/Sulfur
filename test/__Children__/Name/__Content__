@@ -1,1 +1,0 @@
-f"{this.GetChild("FirstName").GetContent()} {this.GetChild("LastName").GetContent()}"
