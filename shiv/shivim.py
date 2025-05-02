@@ -1,8 +1,14 @@
-import curses, sys, keyword
+import curses, sys, keyword, platform
 
-BACKSPACE_KEY: int = 263
-DELETE_KEY: int = 330
+BACKSPACE_KEY = 263
+DELETE_KEY = 330
+ENTER_KEYS = {10, 13}
+ESCAPE_KEY = 27
+
 PYTHON_KEYWORDS: list[str] = keyword.kwlist + keyword.softkwlist
+
+def IsBackspace(key):
+    return key in ('\x08', '\x7f') or key == BACKSPACE_KEY
 
 class Shivim:
     def __init__(self, stdscr, filename):
@@ -17,13 +23,13 @@ class Shivim:
 
     def load_file(self):
         try:
-            with open(self.filename) as f:
+            with open(self.filename, encoding="utf-8") as f:
                 self.lines = f.read().splitlines() or [""]
         except FileNotFoundError:
             self.lines = [""]
 
     def save_file(self):
-        with open(self.filename, "w") as f:
+        with open(self.filename, "w", encoding="utf-8") as f:
             f.write("\n".join(self.lines))
 
     def draw(self):
@@ -33,10 +39,7 @@ class Shivim:
             x = 0
             words = line.split(" ")
             for word in words:
-                if word in PYTHON_KEYWORDS:
-                    color = curses.color_pair(6)
-                else:
-                    color = curses.color_pair(1)
+                color = curses.color_pair(6 if word in PYTHON_KEYWORDS else 1)
                 try:
                     self.stdscr.addstr(idx, x, word, color)
                 except curses.error:
@@ -48,20 +51,22 @@ class Shivim:
             self.stdscr.addstr(h - 1, 0, "-- INSERT --")
         self.stdscr.move(self.cursor_y, self.cursor_x)
         self.stdscr.refresh()
+
     def run(self):
         while True:
             self.draw()
-            key = self.stdscr.get_wch()
+            try:
+                key = self.stdscr.get_wch()
+            except curses.error:
+                continue
 
             if isinstance(key, int):
-                if key == curses.KEY_UP:
-                    if self.cursor_y > 0:
-                        self.cursor_y -= 1
-                        self.cursor_x = min(self.cursor_x, len(self.lines[self.cursor_y]))
-                elif key == curses.KEY_DOWN:
-                    if self.cursor_y < len(self.lines) - 1:
-                        self.cursor_y += 1
-                        self.cursor_x = min(self.cursor_x, len(self.lines[self.cursor_y]))
+                if key == curses.KEY_UP and self.cursor_y > 0:
+                    self.cursor_y -= 1
+                    self.cursor_x = min(self.cursor_x, len(self.lines[self.cursor_y]))
+                elif key == curses.KEY_DOWN and self.cursor_y < len(self.lines) - 1:
+                    self.cursor_y += 1
+                    self.cursor_x = min(self.cursor_x, len(self.lines[self.cursor_y]))
                 elif key == curses.KEY_LEFT:
                     if self.cursor_x > 0:
                         self.cursor_x -= 1
@@ -93,36 +98,36 @@ class Shivim:
                     self.cursor_x = min(len(self.lines[self.cursor_y]), self.cursor_x)
 
             elif self.mode == "insert":
-                if key == "\x1b":  # ESC
+                if key == chr(ESCAPE_KEY):
                     self.mode = "normal"
-                elif key == "\n":  # Enter
+                elif isinstance(key, str) and key in ('\n', '\r'):
                     line = self.lines[self.cursor_y]
                     self.lines[self.cursor_y] = line[:self.cursor_x]
                     self.lines.insert(self.cursor_y + 1, line[self.cursor_x:])
                     self.cursor_y += 1
                     self.cursor_x = 0
-                elif key == "\x7f" or key == BACKSPACE_KEY:  # Backspace
-                    if self.cursor_x > 0:  # Delete character before cursor
+                elif IsBackspace(key):
+                    if self.cursor_x > 0:
                         line = self.lines[self.cursor_y]
                         self.lines[self.cursor_y] = line[:self.cursor_x - 1] + line[self.cursor_x:]
                         self.cursor_x -= 1
-                    elif self.cursor_x == 0 and self.cursor_y > 0:  # Merge with previous line if at start of line
+                    elif self.cursor_x == 0 and self.cursor_y > 0:
                         prev_line = self.lines[self.cursor_y - 1]
                         self.cursor_x = len(prev_line)
                         self.lines[self.cursor_y - 1] += self.lines[self.cursor_y]
                         del self.lines[self.cursor_y]
                         self.cursor_y -= 1
-                elif key == DELETE_KEY:  # Delete key
+                elif isinstance(key, int) and key == DELETE_KEY:
                     line = self.lines[self.cursor_y]
-                    if self.cursor_x < len(line):  # Delete character after cursor
+                    if self.cursor_x < len(line):
                         self.lines[self.cursor_y] = line[:self.cursor_x] + line[self.cursor_x + 1:]
-                elif isinstance(key, str):  # Any regular key (non-special)
+                elif isinstance(key, str):
                     line = self.lines[self.cursor_y]
                     self.lines[self.cursor_y] = line[:self.cursor_x] + key + line[self.cursor_x:]
-                    self.cursor_x += 1
+                    self.cursor_x += len(key)
 
             elif self.mode == "command":
-                if key == "\n":  # Enter in command mode
+                if key in ('\n', '\r'):
                     if self.cmd == "w":
                         self.save_file()
                     elif self.cmd == "q":
@@ -131,21 +136,27 @@ class Shivim:
                         self.save_file()
                         break
                     self.mode = "normal"
-                elif key == "\x7f" or key == BACKSPACE_KEY:
+                elif IsBackspace(key):
                     self.cmd = self.cmd[:-1]
-                elif key == DELETE_KEY:
-                    self.cmd = self.cmd[:self.cursor_x] + self.cmd[self.cursor_x + 1:]
                 elif isinstance(key, str):
                     self.cmd += key
 
 
-def main(stdscr, filename):
+def main(stdscr, filename: str):
     curses.curs_set(1)
-    curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK)
-    curses.init_pair(6, curses.COLOR_YELLOW, curses.COLOR_BLACK)
+    curses.start_color()
+    curses.use_default_colors()
+    curses.init_pair(1, curses.COLOR_WHITE, -1)
+    curses.init_pair(6, curses.COLOR_YELLOW, -1)
+    stdscr.keypad(True)
     editor = Shivim(stdscr, filename)
     editor.run()
 
 
-def run(filename):
+def run(filename: str):
+    if platform.system() == "Windows":
+        try:
+            import _curses
+        except ImportError:
+            raise Exception("Please install the 'windows-curses' package:\n    pip install windows-curses")
     curses.wrapper(main, filename)

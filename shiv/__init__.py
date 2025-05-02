@@ -3,7 +3,7 @@ from typing import Any
 from .core import VirtualFile
 
 def Require(module: VirtualFile, d: dict) -> Any:
-    mod: Any = module.Require()
+    mod: Any = module._Require()
     d[module.GetName()] = mod
     return mod
 def GetVF(file: str) -> VirtualFile:
