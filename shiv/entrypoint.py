@@ -11,6 +11,8 @@ def main() -> None:
         RedPrint("Running in -v (verbose) mode", exit_after=False)
     if "-c" in argv:
         RedPrint("Running in -c (colour) mode", exit_after=False)
+    if "-n" in argv:
+        RedPrint("Running in -n (no permissions) mode", exit_after=False)
     errors: list[str] = []
     try:
         ft = FileTreeCLUI(argv[1])
@@ -25,7 +27,7 @@ def main() -> None:
         exit()
     while True:
         try:
-            ft.Display()
+            ft.Display(viewer_mode="-n" in argv)
         except Exception as err:
             if "-v" in argv:
                 raise err
