@@ -56,7 +56,7 @@ class VirtualFile:
     def GetType(self) -> str:
         return self.__type
     def GetStringContent(self) -> str:
-        if self.__type in ["Folder", "ValueList", "WorkspaceRoot", "Comment"]:
+        if self.__type in ["Folder", "Class", "ValueList", "WorkspaceRoot", "Comment"]:
             RedPrint(f"Cannot get string content of a {self.__type}.")
         return self.__content
     def GetContent(self) -> Any:
@@ -67,7 +67,11 @@ class VirtualFile:
         elif self.__type == "Integer":
             return int(self.__content)
         elif self.__type == "Boolean":
-            return bool(self.__content)
+            return eval(self.__content.capitalize())
+        elif self.__type == "Class":
+            return self._Class()
+        else:
+            return self.__content
     def _ValueListCheck(self, name: str) -> None:
         if self.__type != "ValueList":
             RedPrint(f"The {name} method is only available for objects of type ValueList.")
@@ -84,23 +88,38 @@ class VirtualFile:
         if not self.GetChildren():
             RedPrint(f"No values in {self.__name} to pick from.")
         return self.GetValue(randint(0, len(self.GetChildren()) - 1))
+    def _Class(self):
+        if self.__type != "Class":
+            RedPrint("Only objects of type Class can be interpreted as a class in a script.")
+        attributes: dict[str, Any] = {}
+        for child in [VirtualFile(p) for p in self.GetChildren()]:
+            if child.GetType() == "Comment":
+                continue
+            attributes |= {child.GetName(): {
+                "Class": lambda p: VirtualFile(p).Class(),
+                "ValueList": lambda p: VirtualFile(p).GetValues(),
+                "Boolean": lambda p: VirtualFile(p).GetContent(),
+                "Integer": lambda p: VirtualFile(p).GetContent(),
+                "Float": lambda p: VirtualFile(p).GetContent(),
+                "String": lambda p: VirtualFile(p).GetContent()
+            }.get(child.GetType(), VirtualFile)(child.GetPath())}
+        return type(self.GetName(), (), attributes)()
     def _Require(self):
+        from . import GetVF, Require
         if self.__type != "ScriptModule":
             RedPrint("Only objects of type ScriptModule can be required in a script.")
-        content_path: str = os.path.join(self.__path, "__Content__")
-        exec(f"""
-class _temp_created_cls:
-{'\n'.join(['    '+ln for ln in self.GetStringContent()])}
-""".strip(), {
-            "shiv": import_module(".", __package__),
+        module_vars: dict[str, Any] = {
             "this": GetVF(os.path.join(self.__path, "__Content__")),
             "require": Require
-        })
-        return _temp_created_cls
+        }
+        exec(f"""
+class _temp_created_cls:
+{'\n'.join(['    '+ln for ln in self.GetStringContent().split('\n')])}
+""".strip(), module_vars)
+        return module_vars["_temp_created_cls"]
     def _Execute(self, protocol: Callable) -> None:
         from . import GetVF, Require
         return protocol(self.__content, {
-            "shiv": import_module(".", __package__),
             "this": GetVF(os.path.join(self.__path, "__Content__")),
             "require": Require
         })
@@ -108,11 +127,11 @@ class _temp_created_cls:
         if self.__type == "Comment":
             return f"\033[90m# {self.__content}\033[0m"
         elif self.__type == "Value" and len(self.__content) <= controls_distance / 5 and len(self.__content) != 0:
-            return f"\033[94m{self.__name}:\033[0m {self.__content.replace('true', '\033[1;33mtrue\033[0m').replace('false', '\033[1;33mfalse\033[0m')}"
+            return f"\033[94m{self.__name}:\033[0m {self.__content.replace('\n', ' ').replace('true', '\033[1;33mtrue\033[0m').replace('false', '\033[1;33mfalse\033[0m')}"
         elif self.__type == "Value":
             return f"\033[94m{self.__name}\033[0m"
         elif self.__type in ["String", "Integer", "Boolean", "Float"] and len(self.__content) <= controls_distance / 5 and len(self.__content) != 0:
-            return f"\033[92m{self.__type}\033[0m \033[94m{self.__name}:\033[0m {self.__content.replace('true', '\033[1;33mtrue\033[0m').replace('false', '\033[1;33mfalse\033[0m')}"
+            return f"\033[92m{self.__type}\033[0m \033[94m{self.__name}:\033[0m {self.__content.replace('\n', ' ').replace('true', '\033[1;33mtrue\033[0m').replace('false', '\033[1;33mfalse\033[0m')}"
         return f"\033[92m{self.__type or 'UnknownType'}\033[0m \033[94m{self.__name}\033[0m"
 
 class FileTreeCLUI:
@@ -148,10 +167,10 @@ class FileTreeCLUI:
         node = node or self.root
         order_char: str = GetCharVariant(order)
         bleed: int = -9 if node.GetType() in ["Value", "Comment"] else 0
-        bleed = (11 if "true" in node.GetStringContent() or "false" in node.GetStringContent() else bleed) if node.GetType() not in ["Folder", "ValueList", "WorkspaceRoot", "Comment"] else bleed
+        bleed = (11 if "true" in node.GetStringContent() or "false" in node.GetStringContent() else bleed) if node.GetType() not in ["Folder", "Class", "ValueList", "WorkspaceRoot", "Comment"] else bleed
         print("  " * indent + str(node), GetRandomColor("-" * (controls_distance - indent * 2 - len(str(node)) + bleed)),
               f" execute: [.{order_char}]" if node.GetType() in ["Script", "ScriptModule", "ScriptEval"] and not viewer_mode else f"\033[90m execute: \033[9m[.{order_char}]\033[0m",
-              f" view/edit: [e{order_char}]" if node.GetType() not in ["Folder", "ValueList", "WorkspaceRoot"] and not viewer_mode else f"\033[90m view/edit: \033[9m[e{order_char}]\033[0m",
+              f" view/edit: [e{order_char}]" if node.GetType() not in ["Folder", "Class", "ValueList", "WorkspaceRoot"] and not viewer_mode else f"\033[90m view/edit: \033[9m[e{order_char}]\033[0m",
               f" delete: [d{order_char}]" if indent != 0 and not viewer_mode else f"\033[90m delete: \033[9m[d{order_char}]\033[0m",
               f" rename: [r{order_char}]" if indent != 0 and node.GetType() not in ["Value", "Comment"] and not viewer_mode else f"\033[90m rename: \033[9m[r{order_char}]\033[0m")
         commands = (commands or {}) | {
@@ -160,7 +179,7 @@ class FileTreeCLUI:
             "re": lambda: (GreenPrint("SHIV refreshed!"), self.Display(viewer_mode=viewer_mode), exit())
         }
         if not viewer_mode:
-            if node.GetType() not in ["Folder", "ValueList", "WorkspaceRoot"]:
+            if node.GetType() not in ["Folder", "Class", "ValueList", "WorkspaceRoot"]:
                 commands[f"e{order_char}"] = lambda: (RunShivim(os.path.join(node.GetPath(), "__Content__")), GreenPrint("Modification Commited."), self.Display(viewer_mode=viewer_mode), exit())
             else:
                 commands[f"e{order_char}"] = lambda: RedPrint(f"Objects of type {node.GetType()} cannot be viewed/edited.")
@@ -212,6 +231,7 @@ class FileTreeCLUI:
                                         "ScriptModule",
                                         "ScriptEval",
                                         "Folder",
+                                        "Class",
                                         "ValueList",
                                         "Boolean",
                                         "Integer",
@@ -247,14 +267,6 @@ class FileTreeCLUI:
                         GreenPrint("Relaunching shiv...")
                         os.system(f"{executable} -m shiv {q.removeprefix('n')}")
                         exit()
-                    elif q.startswith("solo"):
-                        if viewer_mode:
-                            RedPrint("solo for SHIV not available. reason: '-n (no permissions) mode active in this session'", exit_after=False)
-                            continue
-                        if q.strip() == "solo":
-                            GreenPrint("solo for SHIV available.")
-                            continue
-                        os.system(q.removeprefix("solo"))
                     elif q in ["reset", "reset+q"]:
                         RedPrint(f"/!\\ Are you sure you want to delete ALL objects in \033[3m{node.GetPath()}\033[0m", exit_after=False)
                         try:

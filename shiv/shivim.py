@@ -5,7 +5,9 @@ DELETE_KEY = 330
 ENTER_KEYS = {10, 13}
 ESCAPE_KEY = 27
 
-PYTHON_KEYWORDS: list[str] = keyword.kwlist + keyword.softkwlist
+YELLOW_WORDS: list[str] = keyword.kwlist + keyword.softkwlist + [
+    "+", "-", "=", "==", "<", ">", "<=", ">=", "..."
+]
 
 def IsBackspace(key):
     return key in ('\x08', '\x7f') or key == BACKSPACE_KEY
@@ -39,7 +41,7 @@ class Shivim:
             x = 0
             words = line.split(" ")
             for word in words:
-                color = curses.color_pair(6 if word in PYTHON_KEYWORDS else 1)
+                color = curses.color_pair(6 if word in YELLOW_WORDS else 1)
                 try:
                     self.stdscr.addstr(idx, x, word, color)
                 except curses.error:

@@ -75,7 +75,7 @@ def RunShivim(file_name: str) -> None:
             with open(file_name, "w") as file:
                 file.write(str(evq))
             break
-    elif file_type not in ["Folder", "ValueList", "WorkspaceRoot"]:
+    elif file_type not in ["Folder", "Class", "ValueList", "WorkspaceRoot"]:
         run(file_name)
     else:
         with open(file_name, "w") as file:
