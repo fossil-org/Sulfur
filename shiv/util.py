@@ -52,7 +52,24 @@ OBJECT_TYPE_LIST: list[str] = [
     "URL",
     "Class"
 ]
-
+ANSI_COLORS: dict[int, str] = {
+    30: "Black",
+    31: "Red",
+    32: "Green",
+    33: "Yellow",
+    34: "Blue",
+    35: "Magenta",
+    36: "Cyan",
+    37: "White",
+    90: "Bright Black (Gray)",
+    91: "Bright Red",
+    92: "Bright Green",
+    93: "Bright Yellow",
+    94: "Bright Blue",
+    95: "Bright Magenta",
+    96: "Bright Cyan",
+    97: "Bright White"
+}
 def RunShivim(file_name: str, highlights: list[str]) -> None:
     with open(str(Path(file_name).parent / "__Type__")) as file:
         file_type: str = file.read()
@@ -62,6 +79,7 @@ def RunShivim(file_name: str, highlights: list[str]) -> None:
     elif file_type == "Color":
         color: str = input("\033[91mChoose a color (ANSI), run [hc] for help: \033[0m")
         with open(file_name, "w") as file:
+            color = str(list(ANSI_COLORS.keys())[int(list(ANSI_COLORS.values()).index(color.capitalize()))] if color.capitalize() in ANSI_COLORS.values() else color)
             file.write(color + "#" + eval(f"'\\033[{color}m'"))
     elif file_type == "URL":
         url: str = input("\033[91mEnter a URL: \033[0m")
@@ -86,7 +104,7 @@ def RunShivim(file_name: str, highlights: list[str]) -> None:
     elif file_type == "WholeNumber":
         while True:
             from . import GetVF, Require
-            q: str = input("\033[91mEnter an integer value: \033[0m")
+            q: str = input("\033[91mEnter an integer value: \033[0m").replace(" ", "")
             try:
                 evq = eval(q, {
                     "shiv": import_module(".", __package__),
@@ -105,7 +123,7 @@ def RunShivim(file_name: str, highlights: list[str]) -> None:
     elif file_type == "DecimalNumber":
         while True:
             from . import GetVF, Require
-            q: str = input("\033[91mEnter an float value: \033[0m")
+            q: str = input("\033[91mEnter an float value: \033[0m").replace(" ", "").replace(",", ".")
             try:
                 evq = eval(q, {
                     "shiv": import_module(".", __package__),
@@ -121,7 +139,7 @@ def RunShivim(file_name: str, highlights: list[str]) -> None:
             with open(file_name, "w") as file:
                 file.write(str(evq))
             break
-    elif file_type not in ["Folder", "Class", "ValueList", "WorkspaceRoot"]:
+    elif file_type not in ["Folder", "Class", "ValueList", "Workspace"]:
         Run(file_name, highlights)
     else:
         with open(file_name, "w") as file:

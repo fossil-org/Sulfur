@@ -6,9 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="cf88adde-d73d-488c-a80a-229ab5d8b79f" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/shiv/core.py" beforeDir="false" afterPath="$PROJECT_DIR$/shiv/core.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shiv/shivim.py" beforeDir="false" afterPath="$PROJECT_DIR$/shiv/shivim.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shiv/entrypoint.py" beforeDir="false" afterPath="$PROJECT_DIR$/shiv/entrypoint.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/shiv/util.py" beforeDir="false" afterPath="$PROJECT_DIR$/shiv/util.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

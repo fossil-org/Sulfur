@@ -24,7 +24,7 @@ def main() -> None:
     try:
         ft.InitRoot()
     except FileNotFoundError:
-        RedPrint(f"'{argv[1]}' is not a valid WorkspaceRoot path.")
+        RedPrint(f"'{argv[1]}' is not a valid Workspace path.")
         exit()
     while True:
         try:
