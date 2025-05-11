@@ -1,4 +1,4 @@
-import os, shutil, random
+import os, shutil, random, webbrowser
 from importlib import import_module
 from typing import Any, Callable
 from pathlib import Path
@@ -6,8 +6,10 @@ from sys import argv, executable
 from importlib.util import module_from_spec, spec_from_file_location
 from importlib.machinery import SourceFileLoader
 from random import randint
+from prompt_toolkit import prompt
+from prompt_toolkit.completion import WordCompleter
 
-from .util import RedPrint, GreenPrint, RunShivim, GetRandomColor, GetCharVariant, select
+from .util import RedPrint, GreenPrint, RunShivim, GetRandomColor, GetCharVariant, OBJECT_TYPE_LIST, GetHighlight
 
 if os.name == "posix":
     import readline
@@ -64,14 +66,19 @@ class VirtualFile:
             RedPrint(f"Cannot get content of a {self.__type}.")
         elif self.__type == "ScriptEval":
             return self._Execute(eval)
-        elif self.__type == "Integer":
+        elif self.__type == "WholeNumber":
             return int(self.__content)
-        elif self.__type == "Boolean":
+        elif self.__type == "State":
             return eval(self.__content.capitalize())
         elif self.__type == "Class":
             return self._Class()
+        elif self.__type == "Color":
+            return self.__content.split("#")[1]
         else:
             return self.__content
+    def Open(self) -> None:
+        if self.__type == "URL":
+            webbrowser.open(self.__content)
     def _ValueListCheck(self, name: str) -> None:
         if self.__type != "ValueList":
             RedPrint(f"The {name} method is only available for objects of type ValueList.")
@@ -98,10 +105,10 @@ class VirtualFile:
             attributes |= {child.GetName(): {
                 "Class": lambda p: VirtualFile(p).Class(),
                 "ValueList": lambda p: VirtualFile(p).GetValues(),
-                "Boolean": lambda p: VirtualFile(p).GetContent(),
-                "Integer": lambda p: VirtualFile(p).GetContent(),
-                "Float": lambda p: VirtualFile(p).GetContent(),
-                "String": lambda p: VirtualFile(p).GetContent()
+                "State": lambda p: VirtualFile(p).GetContent(),
+                "WholeNumber": lambda p: VirtualFile(p).GetContent(),
+                "DecimalNumber": lambda p: VirtualFile(p).GetContent(),
+                "Text": lambda p: VirtualFile(p).GetContent()
             }.get(child.GetType(), VirtualFile)(child.GetPath())}
         return type(self.GetName(), (), attributes)()
     def _Require(self):
@@ -130,8 +137,10 @@ class _temp_created_cls:
             return f"\033[94m{self.__name}:\033[0m {self.__content.replace('\n', ' ').replace('true', '\033[1;33mtrue\033[0m').replace('false', '\033[1;33mfalse\033[0m')}"
         elif self.__type == "Value":
             return f"\033[94m{self.__name}\033[0m"
-        elif self.__type in ["String", "Integer", "Boolean", "Float"] and len(self.__content) <= controls_distance / 5 and len(self.__content) != 0:
+        elif self.__type in ["Text", "WholeNumber", "State", "DecimalNumber", "Character", "URL"] and len(self.__content) <= controls_distance / 5 and len(self.__content) != 0:
             return f"\033[92m{self.__type}\033[0m \033[94m{self.__name}:\033[0m {self.__content.replace('\n', ' ').replace('true', '\033[1;33mtrue\033[0m').replace('false', '\033[1;33mfalse\033[0m')}"
+        elif self.__type == "Color":
+            return f"\033[92m{self.__type}\033[0m \033[94m{self.__name}:\033[0m {self.__content.split("#")[0]}"
         return f"\033[92m{self.__type or 'UnknownType'}\033[0m \033[94m{self.__name}\033[0m"
 
 class FileTreeCLUI:
@@ -169,7 +178,7 @@ class FileTreeCLUI:
         bleed: int = -9 if node.GetType() in ["Value", "Comment"] else 0
         bleed = (11 if "true" in node.GetStringContent() or "false" in node.GetStringContent() else bleed) if node.GetType() not in ["Folder", "Class", "ValueList", "WorkspaceRoot", "Comment"] else bleed
         print("  " * indent + str(node), GetRandomColor("-" * (controls_distance - indent * 2 - len(str(node)) + bleed)),
-              f" execute: [.{order_char}]" if node.GetType() in ["Script", "ScriptModule", "ScriptEval"] and not viewer_mode else f"\033[90m execute: \033[9m[.{order_char}]\033[0m",
+              f" {'example' if node.GetType() == 'Color' else ('browser' if node.GetType() == 'URL' else 'execute')}: [.{order_char}]" if node.GetType() in ["Script", "ScriptEval", "ShellScript", "Color", "URL"] and not viewer_mode else f"\033[90m {'example' if node.GetType() == 'Color' else ('browser' if node.GetType() == 'URL' else 'execute')}: \033[9m[.{order_char}]\033[0m",
               f" view/edit: [e{order_char}]" if node.GetType() not in ["Folder", "Class", "ValueList", "WorkspaceRoot"] and not viewer_mode else f"\033[90m view/edit: \033[9m[e{order_char}]\033[0m",
               f" delete: [d{order_char}]" if indent != 0 and not viewer_mode else f"\033[90m delete: \033[9m[d{order_char}]\033[0m",
               f" rename: [r{order_char}]" if indent != 0 and node.GetType() not in ["Value", "Comment"] and not viewer_mode else f"\033[90m rename: \033[9m[r{order_char}]\033[0m")
@@ -180,14 +189,19 @@ class FileTreeCLUI:
         }
         if not viewer_mode:
             if node.GetType() not in ["Folder", "Class", "ValueList", "WorkspaceRoot"]:
-                commands[f"e{order_char}"] = lambda: (RunShivim(os.path.join(node.GetPath(), "__Content__")), GreenPrint("Modification Commited."), self.Display(viewer_mode=viewer_mode), exit())
+                commands[f"e{order_char}"] = lambda: (RunShivim(os.path.join(node.GetPath(), "__Content__"), GetHighlight(node.GetType())), GreenPrint("Modification Commited."), self.Display(viewer_mode=viewer_mode), exit())
             else:
                 commands[f"e{order_char}"] = lambda: RedPrint(f"Objects of type {node.GetType()} cannot be viewed/edited.")
-            if node.GetType() in ["Script", "ScriptEval"]:
+            if node.GetType() in ["Script", "ScriptEval", "ShellScript"]:
                 commands[f".{order_char}"] = lambda: (print("\n\n"), node._Execute({ # NOQA
                     "Script": exec,
-                    "ScriptEval": lambda *_, **__: print(node._Execute(eval)) # NOQA
+                    "ScriptEval": lambda *_, **__: print(node._Execute(eval)), # NOQA
+                    "ShellScript": lambda *_, **__: os.system(node.GetContent())
                 }[node.GetType()]), print("\n\n"), self.Display(viewer_mode=viewer_mode), exit())
+            elif node.GetType() == "Color":
+                commands[f".{order_char}"] = lambda: print(f"\n\n{node.GetStringContent().split('#')[1]}{node.GetName()}: {node.GetStringContent().split('#')[0]} - Hello, world!\033[0m\n\n")
+            elif node.GetType() == "URL":
+                commands[f".{order_char}"] = lambda: webbrowser.open(node.GetContent())
             else:
                 commands[f".{order_char}"] = lambda: RedPrint(f"Objects of type {node.GetType()} cannot be executed.")
             if indent != 0 and node.GetType() not in ["Value", "Comment"]:
@@ -214,8 +228,25 @@ class FileTreeCLUI:
         value_list: bool = node.GetType() == "ValueList"
         print("  " * indent + "\033[90m  ...\033[0m", ("\033[90m-\033[0m" * (controls_distance - indent * 2 - 20 - 3)),
             f" comment: [c{add_order_char}]" if not viewer_mode else f"\033[90m comment: \033[9m[c{add_order_char}]\033[0m",
-            (f" add child: [a{add_order_char}]" if node.GetType() not in ["Value", "Comment"] and not viewer_mode else f"\033[90m add child: \033[9m[a{add_order_char}]\033[0m") if not value_list else f" add value: [a{add_order_char}]" if not viewer_mode else f"\033[90m add value: \033[9m[a{add_order_char}]\033[0m"
+            f" add {'value' if value_list else 'child'}: [a{add_order_char}]" if not viewer_mode and node.GetType() not in ["Value", "Comment"] else f"\033[90m add {'value' if value_list else 'child'}: \033[9m[a{add_order_char}]\033[0m"
         )
+        obj_type: str = ""
+        def GetObjectType(new: bool = True) -> str:
+            nonlocal obj_type
+            if not new:
+                return obj_type
+            while True:
+                RedPrint("Child Type:", exit_after=False)
+                q3: str = prompt(
+                    "- ",
+                    completer=WordCompleter(OBJECT_TYPE_LIST, ignore_case=True)
+                )
+                if q3 not in OBJECT_TYPE_LIST:
+                    RedPrint(f"Invalid object type: {q3}", exit_after=False)
+                    RedPrint(f"Run [h] for a list of object types.", exit_after=False)
+                    continue
+                obj_type = q3
+                return q3
         if not viewer_mode:
             if node.GetType() not in ["Value", "Comment"]:
                 commands[f"a{add_order_char}"] = lambda: (
@@ -224,24 +255,12 @@ class FileTreeCLUI:
                             self.AddChild(
                                 node,
                                 str(len(node.GetChildren())) if value_list else input("\033[91mChild Name: \033[0m"),
-                                "Value" if value_list else select(
-                                    "Child type:",
-                                    [
-                                        "Script",
-                                        "ScriptModule",
-                                        "ScriptEval",
-                                        "Folder",
-                                        "Class",
-                                        "ValueList",
-                                        "Boolean",
-                                        "Integer",
-                                        "Float",
-                                        "String",
-                                    ]
-                                ).ask(),
+                                "Value" if value_list else GetObjectType(),
                                 ""
                             ),
-                            "__Content__")
+                            "__Content__"
+                        ),
+                        GetHighlight(GetObjectType(new=False))
                     ),
                     GreenPrint(f"Successfully created {'value' if value_list else 'object'}."),
                     self.Display(viewer_mode=viewer_mode),
@@ -267,6 +286,34 @@ class FileTreeCLUI:
                         GreenPrint("Relaunching shiv...")
                         os.system(f"{executable} -m shiv {q.removeprefix('n')}")
                         exit()
+                    elif q == "h":
+                        print("List of object types:")
+                        for t in OBJECT_TYPE_LIST:
+                            print(f"- {GetRandomColor(t, force=True)}")
+                    elif q == "hc":
+                        GreenPrint("Hint: run [n -c] or [nh -c] or start shiv with the -c option (shiv (...) -c) to enter color mode where some items are easier to tell apart.")
+                        print(*[GetRandomColor(p) for p in "This line will appear colorful in color mode. Try it yourself!".split(" ")])
+                        print("\nList of colors (for Color object):")
+                        print(
+                            "\033[30mBlack: 30\033[0m",
+                            "\033[31mRed: 31\033[0m",
+                            "\033[32mGreen: 32\033[0m",
+                            "\033[33mYellow: 33\033[0m",
+                            "\033[34mBlue: 34\033[0m",
+                            "\033[35mMagenta: 35\033[0m",
+                            "\033[36mCyan: 36\033[0m",
+                            "\033[37mWhite: 37\033[0m",
+                            "\033[90mBright Black (Gray): 90\033[0m",
+                            "\033[91mBright Red: 91\033[0m",
+                            "\033[92mBright Green: 92\033[0m",
+                            "\033[93mBright Yellow: 93\033[0m",
+                            "\033[94mBright Blue: 94\033[0m",
+                            "\033[95mBright Magenta: 95\033[0m",
+                            "\033[96mBright Cyan: 96\033[0m",
+                            "\033[97mBright White: 97\033[0m",
+                            "24-bit colors are also supported.",
+                            sep="\n"
+                        )
                     elif q in ["reset", "reset+q"]:
                         RedPrint(f"/!\\ Are you sure you want to delete ALL objects in \033[3m{node.GetPath()}\033[0m", exit_after=False)
                         try:

@@ -13,6 +13,7 @@ def main() -> None:
         RedPrint("Running in -c (colour) mode", exit_after=False)
     if "-n" in argv:
         RedPrint("Running in -n (no permissions) mode", exit_after=False)
+        print("\033[33mWARNING: Some commands may not render correctly in -n mode.\033[0m")
     errors: list[str] = []
     try:
         ft = FileTreeCLUI(argv[1])
