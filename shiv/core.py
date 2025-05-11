@@ -1,3 +1,14 @@
+"""
+SHIV windows/linux release
+source: https://github.com/fossil-org/SHIV
+
+Developed by: pilot (gh: pilot-gh)
+Published by: FOSSIL (gh: fossil-org)
+
+Est.
+2025
+"""
+
 import os, shutil, random, webbrowser
 from importlib import import_module
 from typing import Any, Callable
@@ -9,7 +20,8 @@ from random import randint
 from prompt_toolkit import prompt
 from prompt_toolkit.completion import WordCompleter
 
-from .util import RedPrint, GreenPrint, RunShivim, GetRandomColor, GetCharVariant, OBJECT_TYPE_LIST, GetHighlight
+from .util import RedPrint, GreenPrint, RunShivim, GetRandomColor, GetCharVariant, OBJECT_TYPE_LIST, GetHighlight, \
+    ANSI_COLORS
 
 if os.name == "posix":
     import readline
@@ -58,11 +70,11 @@ class VirtualFile:
     def GetType(self) -> str:
         return self.__type
     def GetStringContent(self) -> str:
-        if self.__type in ["Folder", "Class", "ValueList", "WorkspaceRoot", "Comment"]:
+        if self.__type in ["Folder", "Class", "ValueList", "Workspace", "Comment"]:
             RedPrint(f"Cannot get string content of a {self.__type}.")
         return self.__content
     def GetContent(self) -> Any:
-        if self.__type in ["Folder", "ValueList", "WorkspaceRoot", "Comment"]:
+        if self.__type in ["Folder", "ValueList", "Workspace", "Comment"]:
             RedPrint(f"Cannot get content of a {self.__type}.")
         elif self.__type == "ScriptEval":
             return self._Execute(eval)
@@ -140,7 +152,8 @@ class _temp_created_cls:
         elif self.__type in ["Text", "WholeNumber", "State", "DecimalNumber", "Character", "URL"] and len(self.__content) <= controls_distance / 5 and len(self.__content) != 0:
             return f"\033[92m{self.__type}\033[0m \033[94m{self.__name}:\033[0m {self.__content.replace('\n', ' ').replace('true', '\033[1;33mtrue\033[0m').replace('false', '\033[1;33mfalse\033[0m')}"
         elif self.__type == "Color":
-            return f"\033[92m{self.__type}\033[0m \033[94m{self.__name}:\033[0m {self.__content.split("#")[0]}"
+            color: str = self.__content.split("#")[0]
+            return f"\033[92m{self.__type}\033[0m \033[94m{self.__name}:\033[0m {ANSI_COLORS[int(color)] if color.isdigit() else color}"
         return f"\033[92m{self.__type or 'UnknownType'}\033[0m \033[94m{self.__name}\033[0m"
 
 class FileTreeCLUI:
@@ -150,7 +163,7 @@ class FileTreeCLUI:
         with open(os.path.join(self.root.GetPath(), "__Content__"), "w") as file:
             file.write("".strip())
         with open(os.path.join(self.root.GetPath(), "__Type__"), "w") as file:
-            file.write(f"WorkspaceRoot")
+            file.write(f"Workspace")
         self.root._LoadMetadata() # NOQA
     def Display(self, node: VirtualFile | None = None, indent: int = 0, order: int = 0, commands: dict[str, Any] | None = None, viewer_mode: bool = False) -> (int, dict[str, Any]):
         global controls_distance, controls_distance_message_shown
@@ -176,10 +189,10 @@ class FileTreeCLUI:
         node = node or self.root
         order_char: str = GetCharVariant(order)
         bleed: int = -9 if node.GetType() in ["Value", "Comment"] else 0
-        bleed = (11 if "true" in node.GetStringContent() or "false" in node.GetStringContent() else bleed) if node.GetType() not in ["Folder", "Class", "ValueList", "WorkspaceRoot", "Comment"] else bleed
+        bleed = (11 if "true" in node.GetStringContent() or "false" in node.GetStringContent() else bleed) if node.GetType() not in ["Folder", "Class", "ValueList", "Workspace", "Comment"] else bleed
         print("  " * indent + str(node), GetRandomColor("-" * (controls_distance - indent * 2 - len(str(node)) + bleed)),
               f" {'example' if node.GetType() == 'Color' else ('browser' if node.GetType() == 'URL' else 'execute')}: [.{order_char}]" if node.GetType() in ["Script", "ScriptEval", "ShellScript", "Color", "URL"] and not viewer_mode else f"\033[90m {'example' if node.GetType() == 'Color' else ('browser' if node.GetType() == 'URL' else 'execute')}: \033[9m[.{order_char}]\033[0m",
-              f" view/edit: [e{order_char}]" if node.GetType() not in ["Folder", "Class", "ValueList", "WorkspaceRoot"] and not viewer_mode else f"\033[90m view/edit: \033[9m[e{order_char}]\033[0m",
+              f" view/edit: [e{order_char}]" if node.GetType() not in ["Folder", "Class", "ValueList", "Workspace"] and not viewer_mode else f"\033[90m view/edit: \033[9m[e{order_char}]\033[0m",
               f" delete: [d{order_char}]" if indent != 0 and not viewer_mode else f"\033[90m delete: \033[9m[d{order_char}]\033[0m",
               f" rename: [r{order_char}]" if indent != 0 and node.GetType() not in ["Value", "Comment"] and not viewer_mode else f"\033[90m rename: \033[9m[r{order_char}]\033[0m")
         commands = (commands or {}) | {
@@ -188,7 +201,7 @@ class FileTreeCLUI:
             "re": lambda: (GreenPrint("SHIV refreshed!"), self.Display(viewer_mode=viewer_mode), exit())
         }
         if not viewer_mode:
-            if node.GetType() not in ["Folder", "Class", "ValueList", "WorkspaceRoot"]:
+            if node.GetType() not in ["Folder", "Class", "ValueList", "Workspace"]:
                 commands[f"e{order_char}"] = lambda: (RunShivim(os.path.join(node.GetPath(), "__Content__"), GetHighlight(node.GetType())), GreenPrint("Modification Commited."), self.Display(viewer_mode=viewer_mode), exit())
             else:
                 commands[f"e{order_char}"] = lambda: RedPrint(f"Objects of type {node.GetType()} cannot be viewed/edited.")
@@ -199,7 +212,7 @@ class FileTreeCLUI:
                     "ShellScript": lambda *_, **__: os.system(node.GetContent())
                 }[node.GetType()]), print("\n\n"), self.Display(viewer_mode=viewer_mode), exit())
             elif node.GetType() == "Color":
-                commands[f".{order_char}"] = lambda: print(f"\n\n{node.GetStringContent().split('#')[1]}{node.GetName()}: {node.GetStringContent().split('#')[0]} - Hello, world!\033[0m\n\n")
+                commands[f".{order_char}"] = lambda: print(f"\n\n{node.GetStringContent().split('#')[1]}{node.GetName()}: {node.GetStringContent().split('#')[0]}\n\nHello, world!\033[0m\n\n")
             elif node.GetType() == "URL":
                 commands[f".{order_char}"] = lambda: webbrowser.open(node.GetContent())
             else:
@@ -290,30 +303,35 @@ class FileTreeCLUI:
                         print("List of object types:")
                         for t in OBJECT_TYPE_LIST:
                             print(f"- {GetRandomColor(t, force=True)}")
+                    elif q in ["au", "cr"]:
+                        print(__doc__)
+                    elif q == "xp":
+                        GreenPrint("Export process started.")
+                        def Iterate(p: str) -> None:
+                            for f in VirtualFile(p).GetChildren():
+                                f = VirtualFile(f)
+                                if f.GetType() == "Comment":
+                                    continue
+                                GreenPrint(f"Exporting: {f.GetPath()}")
+                                shutil.copy(os.path.join(f.GetPath(), "__Content__"), os.path.join(f"{node.GetName()}.export", f"{f.GetName()}.{f.GetType().lower()}"))
+                                Iterate(f.GetPath())
+                        if os.path.exists(f"{node.GetName()}.export"):
+                            RedPrint(f"{node.GetName()}.export already exists! Delete it with the [rmxp] command or move it manually first before making a new export.")
+                        os.mkdir(f"{node.GetName()}.export")
+                        Iterate(node.GetPath())
+                        GreenPrint(f"Export completed! See results in {node.GetName()}.export")
+                    elif q == "rmxp":
+                        if os.path.exists(f"{node.GetName()}.export"):
+                            shutil.rmtree(f"{node.GetName()}.export")
+                            GreenPrint("Current export deleted.")
+                        else:
+                            RedPrint("No export to delete!")
+
                     elif q == "hc":
                         GreenPrint("Hint: run [n -c] or [nh -c] or start shiv with the -c option (shiv (...) -c) to enter color mode where some items are easier to tell apart.")
                         print(*[GetRandomColor(p) for p in "This line will appear colorful in color mode. Try it yourself!".split(" ")])
                         print("\nList of colors (for Color object):")
-                        print(
-                            "\033[30mBlack: 30\033[0m",
-                            "\033[31mRed: 31\033[0m",
-                            "\033[32mGreen: 32\033[0m",
-                            "\033[33mYellow: 33\033[0m",
-                            "\033[34mBlue: 34\033[0m",
-                            "\033[35mMagenta: 35\033[0m",
-                            "\033[36mCyan: 36\033[0m",
-                            "\033[37mWhite: 37\033[0m",
-                            "\033[90mBright Black (Gray): 90\033[0m",
-                            "\033[91mBright Red: 91\033[0m",
-                            "\033[92mBright Green: 92\033[0m",
-                            "\033[93mBright Yellow: 93\033[0m",
-                            "\033[94mBright Blue: 94\033[0m",
-                            "\033[95mBright Magenta: 95\033[0m",
-                            "\033[96mBright Cyan: 96\033[0m",
-                            "\033[97mBright White: 97\033[0m",
-                            "24-bit colors are also supported.",
-                            sep="\n"
-                        )
+                        print(*[f"{k}: {v}" for k, v in ANSI_COLORS.keys()], "24-bit colors are also supported.", sep="\n")
                     elif q in ["reset", "reset+q"]:
                         RedPrint(f"/!\\ Are you sure you want to delete ALL objects in \033[3m{node.GetPath()}\033[0m", exit_after=False)
                         try:
