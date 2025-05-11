@@ -5,13 +5,11 @@ DELETE_KEY = 330
 ENTER_KEYS = {10, 13}
 ESCAPE_KEY = 27
 
-PYTHON_KEYWORDS: list[str] = keyword.kwlist + keyword.softkwlist
-
 def IsBackspace(key):
     return key in ('\x08', '\x7f') or key == BACKSPACE_KEY
 
 class Shivim:
-    def __init__(self, stdscr, filename):
+    def __init__(self, stdscr, filename, highlights: list[str]):
         self.stdscr = stdscr
         self.filename = filename
         self.lines = []
@@ -19,27 +17,28 @@ class Shivim:
         self.cursor_x = 0
         self.mode = "insert"
         self.cmd = ""
-        self.load_file()
+        self.highlights: list[str] = highlights
+        self.LoadFile()
 
-    def load_file(self):
+    def LoadFile(self):
         try:
             with open(self.filename, encoding="utf-8") as f:
                 self.lines = f.read().splitlines() or [""]
         except FileNotFoundError:
             self.lines = [""]
 
-    def save_file(self):
+    def SaveFile(self):
         with open(self.filename, "w", encoding="utf-8") as f:
             f.write("\n".join(self.lines))
 
-    def draw(self):
+    def Draw(self):
         self.stdscr.clear()
         h, w = self.stdscr.getmaxyx()
         for idx, line in enumerate(self.lines[:h - 1]):
             x = 0
             words = line.split(" ")
             for word in words:
-                color = curses.color_pair(6 if word in PYTHON_KEYWORDS else 1)
+                color = curses.color_pair(6 if word in self.highlights else 1)
                 try:
                     self.stdscr.addstr(idx, x, word, color)
                 except curses.error:
@@ -52,9 +51,9 @@ class Shivim:
         self.stdscr.move(self.cursor_y, self.cursor_x)
         self.stdscr.refresh()
 
-    def run(self):
+    def Run(self):
         while True:
-            self.draw()
+            self.Draw()
             try:
                 key = self.stdscr.get_wch()
             except curses.error:
@@ -129,11 +128,11 @@ class Shivim:
             elif self.mode == "command":
                 if key in ('\n', '\r'):
                     if self.cmd == "w":
-                        self.save_file()
+                        self.SaveFile()
                     elif self.cmd == "q":
                         break
                     elif self.cmd == "wq":
-                        self.save_file()
+                        self.SaveFile()
                         break
                     self.mode = "normal"
                 elif IsBackspace(key):
@@ -142,21 +141,21 @@ class Shivim:
                     self.cmd += key
 
 
-def main(stdscr, filename: str):
+def Main(stdscr, filename: str, highlights: list[str]):
     curses.curs_set(1)
     curses.start_color()
     curses.use_default_colors()
     curses.init_pair(1, curses.COLOR_WHITE, -1)
     curses.init_pair(6, curses.COLOR_YELLOW, -1)
     stdscr.keypad(True)
-    editor = Shivim(stdscr, filename)
-    editor.run()
+    editor = Shivim(stdscr, filename, highlights)
+    editor.Run()
 
 
-def run(filename: str):
+def Run(filename: str, highlights: list[str]):
     if platform.system() == "Windows":
         try:
             import _curses
         except ImportError:
             raise Exception("Please install the 'windows-curses' package:\n    pip install windows-curses")
-    curses.wrapper(main, filename)
+    curses.wrapper(Main, filename, highlights)

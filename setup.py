@@ -19,7 +19,7 @@ setup(
         'Operating System :: OS Independent',
     ],
     python_requires='>=3.12',
-    install_requires=["questionary"],
+    install_requires=["questionary", "windows-curses", "prompt-toolkit", "readchar"],
     entry_points={
         'console_scripts': [
             'shiv=shiv.entrypoint:main'
