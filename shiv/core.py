@@ -9,7 +9,7 @@ Est.
 2025
 """
 
-import os, shutil, random, webbrowser
+import os, shutil, random, webbrowser, sys
 from importlib import import_module
 from typing import Any, Callable
 from pathlib import Path
@@ -20,8 +20,7 @@ from random import randint
 from prompt_toolkit import prompt
 from prompt_toolkit.completion import WordCompleter
 
-from .util import RedPrint, GreenPrint, RunShivim, GetRandomColor, GetCharVariant, OBJECT_TYPE_LIST, GetHighlight, \
-    ANSI_COLORS
+from .util import RedPrint, GreenPrint, RunShivim, GetRandomColor, GetCharVariant, OBJECT_TYPE_LIST, GetHighlight, ANSI_COLORS
 
 if os.name == "posix":
     import readline
@@ -191,7 +190,7 @@ class FileTreeCLUI:
         bleed: int = -9 if node.GetType() in ["Value", "Comment"] else 0
         bleed = (11 if "true" in node.GetStringContent() or "false" in node.GetStringContent() else bleed) if node.GetType() not in ["Folder", "Class", "ValueList", "Workspace", "Comment"] else bleed
         print("  " * indent + str(node), GetRandomColor("-" * (controls_distance - indent * 2 - len(str(node)) + bleed)),
-              f" {'example' if node.GetType() == 'Color' else ('browser' if node.GetType() == 'URL' else 'execute')}: [.{order_char}]" if node.GetType() in ["Script", "ScriptEval", "ShellScript", "Color", "URL"] and not viewer_mode else f"\033[90m {'example' if node.GetType() == 'Color' else ('browser' if node.GetType() == 'URL' else 'execute')}: \033[9m[.{order_char}]\033[0m",
+              f" {'example' if node.GetType() == 'Color' else ('browser' if node.GetType() == 'URL' else 'execute')}: [.{order_char}]" if node.GetType() in ["Script", "ScriptEval", "ShellScript", "Color", "URL", "MavroScript"] and not viewer_mode else f"\033[90m {'example' if node.GetType() == 'Color' else ('browser' if node.GetType() == 'URL' else 'execute')}: \033[9m[.{order_char}]\033[0m",
               f" view/edit: [e{order_char}]" if node.GetType() not in ["Folder", "Class", "ValueList", "Workspace"] and not viewer_mode else f"\033[90m view/edit: \033[9m[e{order_char}]\033[0m",
               f" delete: [d{order_char}]" if indent != 0 and not viewer_mode else f"\033[90m delete: \033[9m[d{order_char}]\033[0m",
               f" rename: [r{order_char}]" if indent != 0 and node.GetType() not in ["Value", "Comment"] and not viewer_mode else f"\033[90m rename: \033[9m[r{order_char}]\033[0m")
@@ -205,11 +204,12 @@ class FileTreeCLUI:
                 commands[f"e{order_char}"] = lambda: (RunShivim(os.path.join(node.GetPath(), "__Content__"), GetHighlight(node.GetType())), GreenPrint("Modification Commited."), self.Display(viewer_mode=viewer_mode), exit())
             else:
                 commands[f"e{order_char}"] = lambda: RedPrint(f"Objects of type {node.GetType()} cannot be viewed/edited.")
-            if node.GetType() in ["Script", "ScriptEval", "ShellScript"]:
+            if node.GetType() in ["Script", "ScriptEval", "ShellScript", "MavroScript"]:
                 commands[f".{order_char}"] = lambda: (print("\n\n"), node._Execute({ # NOQA
                     "Script": exec,
                     "ScriptEval": lambda *_, **__: print(node._Execute(eval)), # NOQA
-                    "ShellScript": lambda *_, **__: os.system(node.GetContent())
+                    "ShellScript": lambda *_, **__: os.system(node.GetContent()),
+                    "MavroScript": lambda *_, **__: os.system(f"{sys.executable} -m msq {os.path.join(node.GetPath(), '__Content__')}")
                 }[node.GetType()]), print("\n\n"), self.Display(viewer_mode=viewer_mode), exit())
             elif node.GetType() == "Color":
                 commands[f".{order_char}"] = lambda: print(f"\n\n{node.GetStringContent().split('#')[1]}{node.GetName()}: {node.GetStringContent().split('#')[0]}\n\nHello, world!\033[0m\n\n")
@@ -286,25 +286,27 @@ class FileTreeCLUI:
             try:
                 while True:
                     q: str = input("[cmd] ")
-
-                    if q.startswith("nh"):
-                        if viewer_mode:
-                            RedPrint("Cannot relaunch shiv in -n (no permissions) mode. Use [re] to reload instead.")
+                    if q == "h":
+                        print("List of object types:")
+                        for t in OBJECT_TYPE_LIST:
+                            print(f"- {GetRandomColor(t, force=True)}")
+                    elif q == "hc":
+                        GreenPrint("Hint: run [n -c] or [nh -c] or start shiv with the -c option (shiv (...) -c) to enter color mode where some items are easier to tell apart.")
+                        print(*[GetRandomColor(p) for p in "This line will appear colorful in color mode. Try it yourself!".split(" ")])
+                        print("\nList of colors (for Color object):")
+                        print(*[f"{k}: {v}" for k, v in ANSI_COLORS.keys()], "24-bit colors are also supported.", sep="\n")
+                    elif q in ["au", "cr"]:
+                        GreenPrint(__doc__)
+                    elif viewer_mode:
+                        RedPrint(f"\033[91mUnknown command or insufficient permissions to run: [{q}]\033[0m")
+                    elif q.startswith("nh"):
                         GreenPrint("Relaunching shiv here...")
                         os.system(f"{executable} -m shiv {node.GetPath()} {q.removeprefix('nh')}")
                         exit()
                     elif q.startswith("n"):
-                        if viewer_mode:
-                            RedPrint("Cannot relaunch shiv in -n (no permissions) mode. Use [re] to reload instead.")
                         GreenPrint("Relaunching shiv...")
                         os.system(f"{executable} -m shiv {q.removeprefix('n')}")
                         exit()
-                    elif q == "h":
-                        print("List of object types:")
-                        for t in OBJECT_TYPE_LIST:
-                            print(f"- {GetRandomColor(t, force=True)}")
-                    elif q in ["au", "cr"]:
-                        print(__doc__)
                     elif q == "xp":
                         GreenPrint("Export process started.")
                         def Iterate(p: str) -> None:
@@ -326,12 +328,6 @@ class FileTreeCLUI:
                             GreenPrint("Current export deleted.")
                         else:
                             RedPrint("No export to delete!")
-
-                    elif q == "hc":
-                        GreenPrint("Hint: run [n -c] or [nh -c] or start shiv with the -c option (shiv (...) -c) to enter color mode where some items are easier to tell apart.")
-                        print(*[GetRandomColor(p) for p in "This line will appear colorful in color mode. Try it yourself!".split(" ")])
-                        print("\nList of colors (for Color object):")
-                        print(*[f"{k}: {v}" for k, v in ANSI_COLORS.keys()], "24-bit colors are also supported.", sep="\n")
                     elif q in ["reset", "reset+q"]:
                         RedPrint(f"/!\\ Are you sure you want to delete ALL objects in \033[3m{node.GetPath()}\033[0m", exit_after=False)
                         try:
@@ -356,8 +352,6 @@ class FileTreeCLUI:
                         commands[q]()
                     elif not q:
                         ...
-                    elif viewer_mode:
-                        RedPrint(f"\033[91mUnknown command or insufficient permissions to run: [{q}]\033[0m")
                     else:
                         RedPrint(f"\033[91mUnknown command: [{q}]\033[0m")
             except (KeyboardInterrupt, EOFError):
