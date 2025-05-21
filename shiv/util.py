@@ -33,6 +33,16 @@ HIGHLIGHTS: dict[str] = {
     "Script": PY_KWS,
     "ScriptModule": PY_KWS,
     "ScriptEval": PY_KWS,
+    "MavroScript": [
+        "and", "as", "assert", "async", "await", "break", "case", "catch", "class",
+        "const", "constructor", "continue", "deco", "del", "docstr", "else", "else if",
+        "end", "entrypoint", "enumeration", "extends", "false", "finally", "for", "from",
+        "function", "global", "if", "import", "in", "init", "is", "lambda", "let",
+        "manager", "match", "method", "nonlocal", "not", "null", "only", "openfile", "or",
+        "package", "pass", "private", "public", "raise", "remark", "require", "return",
+        "savelocation", "starter", "startprocess", "static", "true", "try", "until",
+        "upload", "while", "yield"
+    ],
     "ShellScript": ["echo", "cd", "mkdir", "sudo", "pip", "py", "python", "python3", "shiv", "rmdir", "rm", "cp", "mv", "venv", "which", "git", "gh"]
 }
 GetHighlight: Callable = lambda t: HIGHLIGHTS.get(t, [])
@@ -48,6 +58,7 @@ OBJECT_TYPE_LIST: list[str] = [
     "ScriptEval",
     "Character",
     "ShellScript",
+    "MavroScript",
     "Color",
     "URL",
     "Class"
