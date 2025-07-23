@@ -1,2 +1,3 @@
-# SHIV
-razor sharp coding environment
+# Sulfur
+
+Smart coding environment for developers

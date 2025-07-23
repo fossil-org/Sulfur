@@ -8,7 +8,7 @@ ESCAPE_KEY = 27
 def IsBackspace(key):
     return key in ('\x08', '\x7f') or key == BACKSPACE_KEY
 
-class Shivim:
+class Editor:
     def __init__(self, stdscr, filename, highlights: list[str]):
         self.stdscr = stdscr
         self.filename = filename
@@ -148,7 +148,7 @@ def Main(stdscr, filename: str, highlights: list[str]):
     curses.init_pair(1, curses.COLOR_WHITE, -1)
     curses.init_pair(6, curses.COLOR_YELLOW, -1)
     stdscr.keypad(True)
-    editor = Shivim(stdscr, filename, highlights)
+    editor = Editor(stdscr, filename, highlights)
     editor.Run()
 
 
