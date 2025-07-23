@@ -5,11 +5,11 @@ def read_long_description():
         return f.read()
 
 setup(
-    name='SHIV',
+    name='Sulfur',
     version='1',
     author='fossil',
     author_email='fossil.org1@gmail.com',
-    description='> razor sharp coding environment_',
+    description='Smart coding environment for developers',
     long_description=read_long_description(),
     long_description_content_type='text/markdown',
     packages=find_packages(),
@@ -19,10 +19,10 @@ setup(
         'Operating System :: OS Independent',
     ],
     python_requires='>=3.12',
-    install_requires=["questionary", "windows-curses", "prompt-toolkit", "readchar"],
+    install_requires=["questionary", "windows-curses", "prompt-toolkit", "readchar", "pyyaml"],
     entry_points={
         'console_scripts': [
-            'shiv=shiv.entrypoint:main'
+            'sulfur=sulfur.entrypoint:main'
         ]
     }
 )
