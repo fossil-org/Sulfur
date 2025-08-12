@@ -18,16 +18,16 @@ class Editor:
         self.mode = "insert"
         self.cmd = ""
         self.highlights: list[str] = highlights
-        self.LoadFile()
+        self.LoadObject()
 
-    def LoadFile(self):
+    def LoadObject(self):
         try:
             with open(self.filename, encoding="utf-8") as f:
                 self.lines = f.read().splitlines() or [""]
         except FileNotFoundError:
             self.lines = [""]
 
-    def SaveFile(self):
+    def SaveObject(self):
         with open(self.filename, "w", encoding="utf-8") as f:
             f.write("\n".join(self.lines))
 
@@ -128,11 +128,11 @@ class Editor:
             elif self.mode == "command":
                 if key in ('\n', '\r'):
                     if self.cmd == "w":
-                        self.SaveFile()
+                        self.SaveObject()
                     elif self.cmd == "q":
                         break
                     elif self.cmd == "wq":
-                        self.SaveFile()
+                        self.SaveObject()
                         break
                     self.mode = "normal"
                 elif IsBackspace(key):

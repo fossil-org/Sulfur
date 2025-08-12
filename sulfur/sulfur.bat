@@ -1,3 +1,3 @@
 @echo off
-py -m sulfur
+python -m sulfur
 pause

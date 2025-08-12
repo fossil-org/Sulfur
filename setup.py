@@ -13,6 +13,7 @@ setup(
     long_description=read_long_description(),
     long_description_content_type='text/markdown',
     packages=find_packages(),
+    include_package_data=True,
     classifiers=[
         'Programming Language :: Python :: 3',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
@@ -22,7 +23,9 @@ setup(
     install_requires=["questionary", "windows-curses", "prompt-toolkit", "readchar", "pyyaml"],
     entry_points={
         'console_scripts': [
-            'sulfur=sulfur.entrypoint:main'
+            'sulfur=sulfur.entrypoint:main',
+            'pcldisable=sulfur.disable:main',
+            "pclinstall=sulfur.install:main"
         ]
     }
 )

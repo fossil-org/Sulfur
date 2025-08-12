@@ -1,0 +1,54 @@
+Version: pr # version of the plugin. used by the dependency manager. common convention is using 'pr' (public release) instead of the version if it's not too important.
+Author: BobTheDev # author of the plugin. used by the dependency manager and can be used as credit to the creator. only one name can be specified.
+Description: "A very cool plugin by BobTheDev!" # short description of what your plugin does.
+Permissions: # choose which resources can be included by which plugins or authors. ALL requirements must be met to allow inclusion.
+  Groups: # create permission groups to avoid typing the same permissions for multiple files.
+    Public: # name of the group, can be anything alphanumeric. common convention is having at least 'Public' and 'Private' groups.
+      PluginWhitelist: # list of plugins that CAN include this resource.
+        Enabled: false # whether to enable this feature.
+        List: [ ] # list plugin names here.
+      AuthorWhitelist: # list of authors that CAN include this resource.
+        Enabled: false # whether to enable this feature.
+        List: [ ] # list author names here.
+      PluginBlacklist: # list of plugins that CANNOT include this resource.
+        Enabled: true # whether to enable this feature.
+        List: # list plugin names here.
+          - EvilStevePlugin # prevent Evil Steve from taking advantage of this resource for his own evil needs.
+      AuthorBlacklist: # list of authors that CANNOT include this resource.
+        Enabled: true # whether to enable this feature.
+        List: # list author names here.
+          - __unsigned__ # use __unsigned__ to target all plugins without an author name.
+    BobOnly: # name of the group, can be anything alphanumeric.
+      PluginWhitelist: # list of plugins that CAN include this resource.
+        Enabled: false # whether to enable this feature.
+        List: [ ] # list plugin names here.
+      AuthorWhitelist: # list of authors that CAN include this resource.
+        Enabled: true # whether to enable this feature.
+        List: # list author names here.
+          - BobTheDev
+      PluginBlacklist: # list of plugins that CANNOT include this resource.
+        Enabled: false # whether to enable this feature.
+        List: [ ] # list plugin names here.
+      AuthorBlacklist: # list of authors that CANNOT include this resource.
+        Enabled: false # whether to enable this feature.
+        List: [ ] # list author names here.
+  Resources: # list of resources and their permissions/group.
+    .*: # use .* to target all FILES in the base directory.
+      # these permissions make all files in the base directory unincludable.
+      PluginWhitelist: # list of plugins that CAN include this resource.
+        Enabled: true # whether to enable this feature.
+        List: [ ] # list plugin names here.
+      AuthorWhitelist: # list of authors that CAN include this resource.
+        Enabled: true # whether to enable this feature.
+        List: [ ] # list author names here.
+      # you can skip setting requirements that are not used (in this case PluginBlacklist and PluginWhitelist).
+    VeryCoolResources.Console.*: # use * to target all FILES in the directory.
+      InheritsFrom: Public # group name to inherit from.
+    VeryCoolResources.Web.*: # use * to target all FILES in the directory.
+      InheritsFrom: Public # group name to inherit from.
+    VeryCoolResources.GUI.*: # use * to target all FILES in the directory.
+      InheritsFrom: Public # group name to inherit from.
+    VeryCoolResources.GUI.Framework: # more specific resource names will take priority.
+      InheritsFrom: BobOnly # group name to inherit from.
+    SecretFeatures.*: # use * to target all FILES in the directory.
+      InheritsFrom: BobOnly # group name to inherit from.

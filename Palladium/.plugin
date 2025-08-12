@@ -1,0 +1,13 @@
+Version: pr
+Author: pilot
+Description: "A popular dependency and system variable plugin. Allows you to integrate constant variables in your workspace, such as operating system name, username, system specs, computer name, os version, cpu info, virtual memory and more."
+Permissions:
+  Groups:
+    Public:
+    Private:
+      PluginWhitelist:
+        Enabled: true
+        List: [Palladium]
+  Resources:
+    Core:
+      InheritsFrom: Public

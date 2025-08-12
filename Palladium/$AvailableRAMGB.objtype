@@ -1,0 +1,21 @@
+Execute:
+  Enabled: true
+  Dependencies:
+    Palladium:
+      Version: pr
+      Author: pilot
+  Include:
+    - Palladium:Core
+  Command:
+    - "import psutil"
+    - "sulfur.Write(this, round(psutil.virtual_memory().available / (1024**3), 2))"
+    - "SuccessMessage(this)"
+Display:
+  InheritsFrom: Value
+  Execute:
+    InheritsFrom: Script
+Editor:
+  Enabled: false
+GetContent:
+  Enabled: true
+  InheritsFrom: Integer
