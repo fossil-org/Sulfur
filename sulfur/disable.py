@@ -1,6 +1,6 @@
 import os
 from sys import argv
-from .spm import Plugin
+from .pcl import Plugin
 
 def main() -> None:
     plugin: Plugin = Plugin(argv[1], enabled=True)

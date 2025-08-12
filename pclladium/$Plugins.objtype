@@ -1,0 +1,21 @@
+Execute:
+  Enabled: true
+  Dependencies:
+    Palladium:
+      Version: pr
+      Author: pilot
+  Include:
+    - Palladium:Core
+    - pclladium:Core
+  Command:
+    - "sulfur.Write(this, GetAllPlugins())"
+    - "SuccessMessage(this, pn='pclladium')"
+Display:
+  InheritsFrom: Value
+  Execute:
+    InheritsFrom: Script
+Editor:
+  Enabled: false
+GetContent:
+  Enabled: true
+  InheritsFrom: SimpleEval

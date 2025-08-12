@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sulfur Resource Downloads</title>
+    <script src="https://kit.fontawesome.com/3c254bebea.js" crossorigin="anonymous"></script>
+    <style>
+         :root {
+            --bg: #0d0d0d;
+            --card: #1a1a1a;
+            --accent1: #ffcc00;
+            --accent2: #ff6600;
+            --muted: #bfbfbf;
+        }
+        
+        * {
+            box-sizing: border-box
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: #eaeaea;
+            margin: 0;
+            padding: 2rem;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 1.5rem
+        }
+        
+        header h1 {
+            margin: 0;
+            font-size: 2.4rem;
+            letter-spacing: 1px;
+            background: linear-gradient(90deg, var(--accent1), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        header p {
+            margin: .4rem 0 0;
+            color: var(--muted)
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.25rem;
+            align-items: start;
+        }
+        
+        .panel {
+            background: var(--card);
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, .6), 0 0 0 1px rgba(255, 204, 0, 0.03) inset;
+            cursor: pointer;
+            transition: transform .28s cubic-bezier(.2, .9, .2, 1), box-shadow .28s ease, grid-row-gap .28s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .panel:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, .7)
+        }
+        
+        .panel-head {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            padding: 18px;
+        }
+        
+        .panel-head img.logo {
+            width: 56px;
+            height: 56px;
+            border-radius: 10px;
+            object-fit: cover
+        }
+        
+        .panel-head .title {
+            font-size: 1.125rem;
+            font-weight: 600
+        }
+        
+        .panel-head .subtitle {
+            color: var(--muted);
+            font-size: .9rem
+        }
+        
+        .banner {
+            width: 240px;
+            height: 160px;
+            object-fit: cover;
+            display: block
+        }
+        /* collapsed -> content hidden */
+        
+        .panel-body {
+            padding: 0 18px 18px 18px;
+            opacity: 0;
+            transform: translateY(6px);
+            max-height: 0;
+            transition: opacity .32s ease .08s, transform .32s ease .08s, max-height .36s ease;
+        }
+        /* expanded state */
+        
+        .panel.expanded {
+            grid-column: 1 / -1;
+        }
+        
+        .panel.expanded .panel-body {
+            opacity: 1;
+            transform: none;
+            max-height: 1200px
+        }
+        
+        .panel-body .gif {
+            width: 100%;
+            max-height: 360px;
+            object-fit: contain;
+            border-radius: 10px;
+            display: block;
+            margin: 12px 0
+        }
+        
+        .panel-body p {
+            color: var(--muted);
+            line-height: 1.5;
+            margin: 0
+        }
+        
+        .actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px
+        }
+        
+        .btn {
+            padding: .5rem .9rem;
+            border-radius: 10px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer
+        }
+        
+        .btn.primary {
+            background: linear-gradient(90deg, var(--accent1), var(--accent2));
+            color: #0b0b0b
+        }
+        
+        .btn.ghost {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            color: var(--muted)
+        }
+        
+        .icon-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Sulfur Resource Downloads</h1>
+        <p style="color: rgb(100,100,100);">Click a card to expand it in-place.</p>
+    </header>
+
+    <main class="grid" id="grid">
+        <!-- Sulfur -->
+        <article class="panel" data-key="sulfur">
+            <img class="banner" src="https://i.imgur.com/i02WkZk.png" alt="Sulfur banner">
+            <div class="panel-head">
+                <img class="logo" src="https://i.imgur.com/OHuAy0x.png" alt="Sulfur logo">
+                <div>
+                    <div class="title">Sulfur + PCL</div>
+                    <div class="subtitle">Modern file manager</div>
+                </div>
+            </div>
+            <div class="icon-row">
+                <i class="fa-brands fa-windows" style="color: #ebbf06;"></i>
+                <i class="fa-brands fa-linux" style="color: #ebbf06;"></i>
+            </div>
+            <div class="panel-body">
+                <p>Sulfur is a fast, extensible file manager with a plugin ecosystem (PCL) and a strong focus on developer workflows. Install plugins to extend functionality and automate tasks.</p>
+                <div class="actions">
+                    <a href="dist/sulfur.zip" download><button class="btn primary">Install</button></a>
+                    <button class="btn ghost" onclick="openReadme(event,'sulfur')">Readme</button>
+                </div>
+            </div>
+        </article>
+        <!-- Palladium -->
+        <article class="panel" data-key="palladium">
+            <img class="banner" src="https://i.imgur.com/08iOGQ2.png" alt="Palladium banner">
+            <div class="panel-head">
+                <img class="logo" src="https://i.imgur.com/UbpAaMh.png" alt="Palladium logo">
+                <div>
+                    <div class="title">Palladium</div>
+                    <div class="subtitle">System variables & dependency integration</div>
+                </div>
+            </div>
+            <div class="icon-row">
+                <i class="fa-brands fa-windows" style="color: #ebbf06;"></i>
+                <i class="fa-brands fa-linux" style="color: #ebbf06;"></i>
+            </div>
+            <div class="panel-body">
+                <p>Integrate constant workspace variables such as OS name, username, computer name, OS version, CPU and memory stats, and other environment details. Use Palladium as a stable source for system metadata across Sulfur workflows.</p>
+                <div class="actions">
+                    <a href="dist/Palladium.zip" download><button class="btn primary">Install</button></a>
+                    <button class="btn ghost" onclick="openReadme(event,'palladium')">Readme</button>
+                </div>
+            </div>
+        </article>
+
+        <!-- ObjectComponents -->
+        <article class="panel" data-key="objectcomponents">
+            <img class="banner" src="https://i.imgur.com/QVf0TgN.png" alt="ObjectComponents banner">
+            <div class="panel-head">
+                <img class="logo" src="https://i.imgur.com/HK7PuQu.png" alt="ObjectComponents logo">
+                <div>
+                    <div class="title">ObjectComponents</div>
+                    <div class="subtitle">Palladium extension — object metadata</div>
+                </div>
+            </div>
+            <div class="icon-row">
+                <i class="fa-brands fa-windows" style="color: #ebbf06;"></i>
+                <i class="fa-brands fa-linux" style="color: #ebbf06;"></i>
+            </div>
+            <div class="panel-body">
+                <p>Expose object-centric components like object type, python type, name, path, content length and more. Perfect for tooling that introspects file contents and metadata programmatically.</p>
+                <div class="actions">
+                    <a href="dist/ObjectComponents.zip" download><button class="btn primary">Install</button></a>
+                    <button class="btn ghost" onclick="openReadme(event,'objectcomponents')">Readme</button>
+                </div>
+            </div>
+        </article>
+
+        <!-- pclladium -->
+        <article class="panel" data-key="pclladium">
+            <img class="banner" src="https://i.imgur.com/uTPPWuL.png" alt="pclladium banner">
+            <div class="panel-head">
+                <img class="logo" src="https://i.imgur.com/sDHENcd.png" alt="pclladium logo">
+                <div>
+                    <div class="title">pclladium</div>
+                    <div class="subtitle">PCL bridge for Palladium</div>
+                </div>
+            </div>
+            <div class="icon-row">
+                <i class="fa-brands fa-windows" style="color: #ebbf06;"></i>
+                <i class="fa-brands fa-linux" style="color: #ebbf06;"></i>
+            </div>
+            <div class="panel-body">
+                <p>Fetch plugin manifests and metadata from PCL (Sulfur's plugin manager) and surface them through Palladium variables for fast discovery and automation.</p>
+                <img class="gif" src="/gifs/pclladium.gif" alt="pclladium preview GIF">
+                <div class="actions">
+                    <a href="dist/pclladium.zip" download><button class="btn primary">Install</button></a>
+                    <button class="btn ghost" onclick="openReadme(event,'pclladium')">Readme</button>
+                </div>
+            </div>
+        </article>
+    </main>
+
+    <script>
+        const panels = Array.from(document.querySelectorAll('.panel'));
+        let openKey = null;
+
+        function closeOpen() {
+            if (!openKey) return;
+            const openPanel = panels.find(p => p.dataset.key === openKey);
+            if (openPanel) openPanel.classList.remove('expanded');
+            openKey = null;
+        }
+
+        function openPanel(target) {
+            // close current
+            if (openKey && openKey === target.dataset.key) {
+                closeOpen();
+                return;
+            }
+            closeOpen();
+            target.classList.add('expanded');
+            openKey = target.dataset.key;
+            // scroll expanded panel into view nicely
+            setTimeout(() => target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            }), 180);
+        }
+
+        panels.forEach(p => {
+            p.addEventListener('click', (e) => {
+                // prevent clicks on internal buttons from toggling
+                if (e.target.closest('.btn')) return;
+                openPanel(p);
+            });
+        });
+
+        // placeholder installers
+        function install(e, key) {
+            e.stopPropagation();
+            alert('Install: ' + key);
+        }
+
+        function openReadme(e, key) {
+            e.stopPropagation();
+            alert('Open readme: ' + key);
+        }
+    </script>
+</body>
+
+</html>

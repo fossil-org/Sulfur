@@ -1,4 +1,4 @@
-import random, os, keyword, stat
+import random, os, keyword, stat, re
 from sys import argv
 from pathlib import Path
 from importlib import import_module
@@ -7,33 +7,35 @@ from readchar import readchar
 from questionary import select
 
 from .editor import Run
-from .spm import Plugin
+from .pcl import Plugin
 
 SEP: str = "\\" if os.name == "nt" else "/"
 
 def RedPrint(*s: str, sep: str = " ", exit_after: bool = True) -> None:
-    print(f"\033[91m{sep.join(s)}\033[0m")
+    print(f"\033[91m{sep.join([str(i) for i in s])}\033[0m")
     if exit_after:
         exit(1)
 
 def GreenPrint(*s: str, sep: str = " ") -> None:
-    print(f"\033[92m{sep.join(s)}\033[0m")
+    print(f"\033[92m{sep.join([str(i) for i in s])}\033[0m")
 def GetCharVariant(order: int) -> str:
     return f"0{order}" if len(str(order)) == 1 else str(order)
-def GetRandomColor(text: str, force: bool = False) -> str:
+def GetRandomColor(text: str, force: bool = False, minimum_brightness: int = 80, maximum_brightness: int = 255) -> str:
     if "-c" not in argv and not force:
         return text
-    r: int = random.randint(80, 255)
-    g: int = random.randint(80, 255)
-    b: int = random.randint(80, 255)
+    r: int = random.randint(minimum_brightness, maximum_brightness)
+    g: int = random.randint(minimum_brightness, maximum_brightness)
+    b: int = random.randint(minimum_brightness, maximum_brightness)
 
     ansi_code: str = f"\033[38;2;{r};{g};{b}m"
 
     return f"{ansi_code}{text}\033[0m"
 def ForceRemove(func, path, _):
-    """DO NOT CALL. ONLY USE HERE: shutil.rmtree(..., onerror=ForceRemove)"""
+    """DO NOT CALL. ONLY USE LIKE THIS: shutil.rmtree(..., onerror=ForceRemove)"""
     os.chmod(path, stat.S_IWRITE)
     func(path)
+def LenNoColor(text: str) -> int:
+    return len(re.sub(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])", "", text))
 
 PY_KWS: list[str] = keyword.kwlist + keyword.softkwlist + ["..."]
 HIGHLIGHTS: dict[str, list[str]] = {
@@ -80,12 +82,14 @@ ANSI_COLORS: dict[int, str] = {
     97: "Bright White"
 }
 def RunEditor(file_name: str, highlights: list[str]) -> None:
+    if file_name == "__Content__":
+        return
     ea: bool = True
     with open(str(Path(file_name).parent / "__Type__")) as file:
         file_type: str = file.read()
         if ":" in file_type:
-            ea = (Plugin.ReadObjectType(Plugin.TraceObjectType(file_type))["Editor"] or {}).get("Enabled", True)
-            file_type = (Plugin.ReadObjectType(Plugin.TraceObjectType(file_type))["Editor"] or {}).get("InheritsFrom") or "UnknownType"
+            ea = (Plugin.ReadConfig(Plugin.TraceObjectType(file_type))["Editor"] or {}).get("Enabled", True)
+            file_type = (Plugin.ReadConfig(Plugin.TraceObjectType(file_type))["Editor"] or {}).get("InheritsFrom") or "UnknownType"
     if ea:
         if file_type == "Boolean":
             with open(file_name, "w") as file:
@@ -94,7 +98,7 @@ def RunEditor(file_name: str, highlights: list[str]) -> None:
             color: str = input("\033[91mChoose a color (ANSI), run [hc] for help: \033[0m")
             with open(file_name, "w") as file:
                 color = str(list(ANSI_COLORS.keys())[int(list(ANSI_COLORS.values()).index(color.capitalize()))] if color.capitalize() in ANSI_COLORS.values() else color)
-                file.write(color + "#" + f"\\033[{color}m'")
+                file.write(color + "#" + f"'\\033[{color}m'")
         elif file_type == "URL":
             url: str = input("\033[91mEnter a URL: \033[0m")
             url = f"https://{url}" if "://" not in url else url
@@ -117,15 +121,16 @@ def RunEditor(file_name: str, highlights: list[str]) -> None:
                         break
         elif file_type == "Integer":
             while True:
-                from . import GetFile, Require
+                from . import GetObject, Require
                 q: str = input("\033[91mEnter an integer value: \033[0m").replace(" ", "")
                 try:
                     evq = eval(q, {
-                        "sulfur": import_module(".", __package__),
-                        "this": GetFile(os.path.join(file_name, "__Content__")),
-                        "require": Require
+                        "this": GetObject(os.path.join(file_name, "__Content__")).GetParent(),
+                        "print": lambda *_, **__: RedPrint("Error: Cannot use 'print' here.", exit_after=False)
                     })
-                except Exception:
+                except Exception as err:
+                    if "-v" in argv:
+                        print(f"Eval error ({err.__class__.__name__}): {err}")
                     RedPrint("Invalid integer value.", exit_after=False)
                     continue
                 if not isinstance(evq, int):
@@ -136,15 +141,16 @@ def RunEditor(file_name: str, highlights: list[str]) -> None:
                 break
         elif file_type == "Double":
             while True:
-                from . import GetFile, Require
+                from . import GetObject, Require
                 q: str = input("\033[91mEnter an float value: \033[0m").replace(" ", "").replace(",", ".")
                 try:
                     evq = eval(q, {
-                        "sulfur": import_module(".", __package__),
-                        "this": GetFile(os.path.join(file_name, "__Content__")),
-                        "require": Require
+                        "this": GetObject(os.path.join(file_name, "__Content__")).GetParent(),
+                        "print": lambda *_, **__: RedPrint("Error: Cannot use 'print' here.", exit_after=False)
                     })
                 except Exception:
+                    if "-v" in argv:
+                        print(f"Eval error ({err.__class__.__name__}): {err}")
                     RedPrint("Invalid float value.", exit_after=False)
                     continue
                 if not isinstance(evq, float):

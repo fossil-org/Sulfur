@@ -1,0 +1,13 @@
+Version: pr
+Author: pilot
+Description: "A Palladium extension for various object components. (object type, python type, name, path, content length, etc.)"
+Permissions:
+  Groups:
+    Public:
+    Private:
+      PluginWhitelist:
+        Enabled: true
+        List: [ObjectComponents]
+  Resources:
+    Core:
+      InheritsFrom: Private

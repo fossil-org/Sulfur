@@ -1,0 +1,13 @@
+Version: pr
+Author: pilot
+Description: "Palladium extension to fetch plugin info from pcl."
+Permissions:
+  Groups:
+    Public:
+    Private:
+      PluginWhitelist:
+        Enabled: true
+        List: [pclladium]
+  Resources:
+    Core:
+      InheritsFrom: Public

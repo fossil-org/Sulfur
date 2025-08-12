@@ -1,0 +1,69 @@
+Execute: # required so your object type works properly.
+  Enabled: true # toggles whether the objects of this type are executable.
+  Dependencies: # a list of plugins that must be installed and enabled in order to run objects of this type.
+    ExampleDependencyPlugin: # name of the required plugin.
+      Version: 1.0 # the required version of plugin that must be enabled. version can be changed in the plugin's .plugin file. can be blank to allow all versions.
+      Author: BobTheDev # the author of the plugin that must be enabled. Mismatched authors are legal but raise a warning. can be blank to allow all authors.
+      Source: https://github.com/bobthedev/ExampleDependencyPlugin # a url where this plugin can be installed. can be blank to not show a url.
+  Include: # a list of resources to include from other plugins. resources are .py files containing code that when included, can be used in the Command field.
+    - ExampleDependencyPlugin:VeryCoolResources.Console.Print # path to the resource. for ex. 'PluginName:Path.To.My.File' leads to 'sulfur/plugins/enabled/PluginName/Path/To/My/File.py'.
+    # this plugin (PluginObjTypeSetupExample) must have permission to include this resource. learn more in PLUGIN_PCL_SETUP_EXAMPLE.yml
+  Command: # what should run when objects of this type are executed and InheritsFrom is not specified.
+    - "print('hello world')" # basic python statement.
+    - "require(this.GetChild('SomeScriptModule'))" # access to 'require' variable.
+    - "print(f'contents of '{this.GetName()}': this.GetContent()')" # access to 'this' variable.
+    - "global_storage['PluginObjTypeSetupExample:userSignedIn'] = True" # manage global_storage (accessible by all plugins, so prefixing the key with 'PluginName:' is recommended).
+    - "ExampleDependencyPlugin__VeryCoolResources_Console_Print.Print('hello world')" # use of an included resource. replace : with a double underscore (__) and . with a single underscore (_).
+  InheritsFrom: # "copies" (inherits) execute behaviour from a built-in object type. overrides Command. examples:
+  # Script - executes contents as python.
+  # ShellScript - executes contents in the default system shell.
+  # ScriptEval - evaluates and prints contents as python.
+  # Color - prints an example of the contents as a color. may raise an error if the contents are not structured properly.
+  # URL - opens the contents as a url in the default browser.
+  # Boolean - switches the contents from 'true' to 'false' and vice versa. may raise an error if the contents are not either 'true' or 'false'.
+
+Display: # required so your object type works properly.
+  InheritsFrom: # "copies" (inherits) display behaviour from a built-in object type. examples:
+  # Script - default display method: 'ObjectType ObjectName'.
+  # String - shows a preview if the length of the content is short enough to display (value depends on -d number): 'ObjectType ObjectName: Preview'.
+  # Value - does not show the object type, only the name and a preview: 'ObjectName: Preview'.
+  # Comment - does not show the object type or name, only the full contents: '# Contents'.
+  # ScriptEval - shows a preview of the content parsed in python: 'ObjectType ObjectName: eval(Preview)'
+  Execute: # how the execute part of the display will look for objects of this type.
+    InheritsFrom: # "copies" (inherits) execute display behaviour from a built-in object type. examples:
+    # Script - (white) execute: [...]
+    # String - (grey, crossed-out) execute: [...]
+    # Color - (white) example: [...]
+    # Boolean - (white) toggled: [... ]
+
+Editor: # required so your object type works properly.
+  Enabled: true # toggles the editor feature for objects of this type.
+  Highlights: # optional.
+    List: # list of single words to highlight. Must be alphanumeric.
+      - "hello"
+      - "world"
+    InheritsFrom: # "copies" (inherits) highlights list from a built-in object type. merged with List. examples:
+    # Script - all python keyword (if, elif, else, def, True, False, None, etc.) + '...'.
+    # ShellScript - basic shell commands (echo, cd, mkdir, sudo, sulfur, rmdir, rm, cp, mv, git, gh, etc.).
+  InheritsFrom: # "copies" (inherits) editor behaviour from a built-in object type. examples:
+  # Script - a vim-like full-screen multi-line text editor.
+  # Integer - an in-line input field that only accepts integers (full numbers) and mathematical equations resulting in an integer.
+  # Double - an in-line input field that only accepts doubles (decimal numbers) and mathematical equations resulting in a double.
+  # Boolean - an in-line selection field that only accepts true and false.
+  # Character - an in-line key input prompt that only accepts one character.
+  # Color - an in-line input field that converts the inputted string into a color character.
+  # URL - an in-line input field that converts the inputted string into a URL.
+
+GetContent: # required so your object type works properly.
+  Enabled: true # toggle the GetContent method for objects of this type.
+  Command: # what should run when you use the GetContent method on objects of this type and InheritsFrom is not specified.
+    - "return int(content) * this.GetSibling('Multiplier').GetContent()" # use return to end the command. content variable is the literal string content of the object.
+    # sending any output (print) or other intrusive statements is generally not recommended.
+  InheritsFrom: # "copies" (inherits) GetContent behaviour from a built-in object type. overrides Command. examples:
+  # String - returns the content as a string: 'str(content)'.
+  # ScriptEval - returns the evaluated content: 'eval(content)'.
+  # Integer - returns the content as an integer: 'int(content)'.
+  # Double - returns the content as a float: 'float(content)'.
+  # Boolean - returns the content as a boolean: 'eval(content.capitalize())'.
+  # Class - returns the object and its children as a python class.
+  # Color - returns the content as a \033 python color.

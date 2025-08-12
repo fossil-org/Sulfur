@@ -1,0 +1,19 @@
+Execute:
+  Enabled: true
+  Dependencies:
+    Palladium:
+      Version: pr
+      Author: pilot
+  Include:
+    - Palladium:Core
+  Command:
+    - "RefreshAll(this, sulfur)"
+Display:
+  InheritsFrom: Script
+  Execute:
+    InheritsFrom: Script
+Editor:
+  Enabled: false
+GetContent:
+  Enabled: true
+  InheritsFrom: Integer

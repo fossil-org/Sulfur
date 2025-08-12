@@ -1,0 +1,20 @@
+Execute:
+  Enabled: true
+  Dependencies:
+    Palladium:
+      Version: pr
+      Author: pilot
+  Include:
+    - Palladium:Core
+  Command:
+    - "sulfur.Write(this, str(this.GetParent().GetName()))"
+    - "SuccessMessage(this, pn='ObjectComponents')"
+Display:
+  InheritsFrom: Value
+  Execute:
+    InheritsFrom: Script
+Editor:
+  Enabled: false
+GetContent:
+  Enabled: true
+  InheritsFrom: Integer

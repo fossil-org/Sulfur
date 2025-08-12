@@ -1,0 +1,10 @@
+Execute:
+  Enabled: false
+Display:
+  InheritsFrom: String
+  Execute:
+    InheritsFrom: String
+Editor:
+  Enabled: false
+GetContent:
+  Enabled: false

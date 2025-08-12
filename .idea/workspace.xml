@@ -5,18 +5,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cf88adde-d73d-488c-a80a-229ab5d8b79f" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/HOWTOPLUGIN.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shiv/disable.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shiv/install.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shiv/shiv.bat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shiv/spm.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shiv.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shiv.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/PLUGIN_OBJTYPE_SETUP_EXAMPLE.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/PLUGIN_SETUP_EXAMPLE.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sulfur/plugins/enabled/BetterGlobalStorage/.plugin" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sulfur/plugins/enabled/BetterGlobalStorage/Core.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sulfur/plugins/enabled/TestPlugin/.plugin" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sulfur/plugins/enabled/TestPlugin/Receiver.objtype" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sulfur/plugins/enabled/TestPlugin/Transmitter.objtype" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shiv/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/shiv/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shiv/core.py" beforeDir="false" afterPath="$PROJECT_DIR$/shiv/core.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shiv/entrypoint.py" beforeDir="false" afterPath="$PROJECT_DIR$/shiv/entrypoint.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shiv/util.py" beforeDir="false" afterPath="$PROJECT_DIR$/shiv/util.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sulfur/core.py" beforeDir="false" afterPath="$PROJECT_DIR$/sulfur/core.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sulfur/disable.py" beforeDir="false" afterPath="$PROJECT_DIR$/sulfur/disable.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sulfur/entrypoint.py" beforeDir="false" afterPath="$PROJECT_DIR$/sulfur/entrypoint.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sulfur/install.py" beforeDir="false" afterPath="$PROJECT_DIR$/sulfur/install.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sulfur/spm.py" beforeDir="false" afterPath="$PROJECT_DIR$/sulfur/pcl.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sulfur/util.py" beforeDir="false" afterPath="$PROJECT_DIR$/sulfur/util.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -68,11 +70,11 @@
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\pixil\OneDrive\Documents\shiv\sulfur\plugins\enabled" />
       <recent name="C:\Users\pixil\OneDrive\Documents\shiv" />
+      <recent name="C:\Users\pixil\OneDrive\Documents\shiv\sulfur\plugins\enabled\Lingualium\src" />
+      <recent name="C:\Users\pixil\OneDrive\Documents\shiv\Lingualium" />
       <recent name="C:\Users\pixil\OneDrive\Documents\shiv\shiv" />
-      <recent name="C:\Users\pixil\OneDrive\Documents\shiv\shiv\plugins\enabled" />
-      <recent name="C:\Users\pixil\OneDrive\Documents\shiv\shiv\plugins\Sulfur" />
-      <recent name="$PROJECT_DIR$/shiv" />
     </key>
   </component>
   <component name="SharedIndexes">
